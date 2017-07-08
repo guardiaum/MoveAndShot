@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NÃO ESTÁ SENDO USADA -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/containerCamera"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <SurfaceView
+        android:id="@+id/svCamera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <FrameLayout
+        android:id="@+id/viewCompass"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        
+        <ImageView
+    	    android:id="@+id/imageCompass"
+    	    android:layout_width="100dp"
+    	    android:layout_height="100dp"
+    	    android:layout_gravity="end|top"
+    	    android:contentDescription="@string/compass_descrition"
+    	    android:src="@drawable/img_compass" />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/viewArrow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        
+	    <ImageView
+	    	    android:id="@+id/seta"
+	    	    android:layout_width="match_parent"
+	    	    android:layout_height="100dp"
+	    	    android:layout_gravity="bottom|center"
+	    	    android:contentDescription="@string/seta"
+	    	    android:fitsSystemWindows="true"
+	    	    android:src="@drawable/arrow" />
+    </FrameLayout>
+</FrameLayout>

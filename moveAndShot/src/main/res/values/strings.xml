@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Move and Shot</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="botao_captura">Capturar</string>
+    <string name="compass_descrition">Bússola</string>
+    <string name="seta">Seta de Orientação</string>
+
+</resources>

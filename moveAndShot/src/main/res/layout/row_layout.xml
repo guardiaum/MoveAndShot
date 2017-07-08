@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#000">
+    
+    <ImageView 
+        android:id="@+id/imgItem"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/ic_launcher"
+        android:contentDescription="Imagem ilustrativa"
+        />
+    
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:orientation="vertical" 
+	    android:gravity="center_vertical">
+	    
+	    <TextView
+	        android:id="@+id/lblNomePOI"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Nome POI"
+	        android:textSize="24sp" >
+	    </TextView>
+	    
+		<TextView
+	        android:id="@+id/lblEnderecoPOI"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:textSize="14sp" />
+		
+	    <TextView
+	        android:id="@+id/lblDistanciaPOI"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Distância "
+	        android:textSize="14sp"
+	        android:textStyle="bold"/>
+	    
+		<!-- <LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="horizontal" 
+		    android:gravity="center_vertical">
+		    <Button
+		        android:id="@+id/button1"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Mapa" />
+	
+		    <Button
+		        android:id="@+id/button2"
+		        style="?android:attr/buttonStyleSmall"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="Câmera" />
+    	</LinearLayout> -->
+    </LinearLayout>
+</LinearLayout>
