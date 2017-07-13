@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
@@ -248,12 +249,20 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
 								.toString();
 						String type = jsonChildNode.optString("type")
 								.toString();
-						Double latitude = jsonChildNode.optDouble("latitude");
-						Double longitude = jsonChildNode.optDouble("longitude");
+                        JSONObject coordinateObj = jsonChildNode.optJSONObject("poiCoordinate");
+						Double latitude = coordinateObj.optDouble("latitude");
+						Double longitude = coordinateObj.optDouble("longitude");
 						String img = jsonChildNode.optString("imageAddress");
 
-						Address endereco = geocoder.getFromLocation(latitude,
-								longitude, 1).get(0);
+						List<Address> addresses = geocoder.getFromLocation(latitude,
+								longitude, 1);
+
+                        Address endereco = enderecoAtual;
+
+                        Toast.makeText(MainActivity.this, "Addresses size: "+ addresses.size(), Toast.LENGTH_SHORT).show();
+
+						if( addresses != null && !addresses.isEmpty() )
+							endereco = addresses.get(0);
 
 						//Cria o objeto PontoDeInteresse e adiciona ao ArrayList correspondent
 						PontoDeInteresse poi = new PontoDeInteresse(id,
