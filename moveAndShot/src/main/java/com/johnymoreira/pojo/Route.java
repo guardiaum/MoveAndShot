@@ -1,9 +1,8 @@
 package com.johnymoreira.pojo;
 
+import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.android.gms.maps.model.LatLng;
 
 /**
  * created by johnymoreira
@@ -11,27 +10,22 @@ import com.google.android.gms.maps.model.LatLng;
  * POJO for Route representation
  */
 public class Route {
-	private final List<LatLng> points;
-	private String polyline;
+    private final List<LatLng> points = new ArrayList();
+    private String polyline;
 
-	// construtor default. Apenas inicializa o conjunto de pontos da rota
-	public Route() {
-		points = new ArrayList<LatLng>();
-	}
+    public void addPoints(List<LatLng> points) {
+        this.points.addAll(points);
+    }
 
-	public void addPoints(final List<LatLng> points) {
-		this.points.addAll(points);
-	}
+    public List<LatLng> getPoints() {
+        return this.points;
+    }
 
-	public List<LatLng> getPoints() {
-		return points;
-	}
+    public void setPolyline(String polyline) {
+        this.polyline = polyline;
+    }
 
-	public void setPolyline(String polyline) {
-		this.polyline = polyline;
-	}
-
-	public String getPolyline() {
-		return polyline;
-	}
+    public String getPolyline() {
+        return this.polyline;
+    }
 }
