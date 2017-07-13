@@ -6,10 +6,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.location.Address;
 
+/***
+ * created by johnymoreira
+ *
+ * POJO para representação de ponto de interesse
+ */
 public class PontoDeInteresse implements Serializable{
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private int id;
 	private String nomePOI;
@@ -17,11 +20,34 @@ public class PontoDeInteresse implements Serializable{
 	private Address endereco;
 	private LatLng ponto;
 	private String imgPrincipal;
-	
-	public PontoDeInteresse() {
+
+    //construtor default
+    public PontoDeInteresse() {
 		super();
 	}
 
+	/**
+	 * Construtor sobrecarregado de ponto de interesse
+	 * @param id int identificador do ponto de interesse
+	 * @param nomePOI String nome do ponto de interesse
+	 * @param ponto {@link LatLng} coordenada geográfica do ponto de interesse
+	 */
+	public PontoDeInteresse(int id, String nomePOI, LatLng ponto) {
+		super();
+		this.id = id;
+		this.nomePOI = nomePOI;
+		this.ponto = ponto;
+	}
+
+	/**
+	 * Construtor sobrecarregado
+	 *
+ 	 * @param id int identificador do ponto de interesse
+	 * @param nomePOI String nome do ponto de  interesse
+	 * @param type String tipo do ponto de interesse
+	 * @param endereco {@link Address} endereço do ponto de interesse
+	 * @param imgPrincipal URI da imagem no servidor
+	 */
 	public PontoDeInteresse(int id, String nomePOI, String type,
 			Address endereco, String imgPrincipal) {
 		super();
@@ -31,7 +57,17 @@ public class PontoDeInteresse implements Serializable{
 		this.endereco = endereco;
 		this.imgPrincipal = imgPrincipal;
 	}
-	
+
+	/**
+	 * Construtor sobrecarregado
+	 *
+	 * @param id int identificador do ponto de interesse
+	 * @param nomePOI String nome do ponto de interesse
+	 * @param type String tipo do ponto de interesse
+	 * @param endereco {@link Address} endereço físico do ponto de interesse
+	 * @param ponto {@link LatLng} coordenadas geográficas do ponto de interesse
+	 * @param imgPrincipal String URI da imagem no servidor
+	 */
 	public PontoDeInteresse(int id, String nomePOI, String type,
 			Address endereco, LatLng ponto, String imgPrincipal) {
 		super();
@@ -42,12 +78,8 @@ public class PontoDeInteresse implements Serializable{
 		this.ponto = ponto;
 		this.imgPrincipal = imgPrincipal;
 	}
-	public PontoDeInteresse(int id, String nomePOI, LatLng ponto) {
-		super();
-		this.id = id;
-		this.nomePOI = nomePOI;
-		this.ponto = ponto;
-	}
+
+	//getters and setters
 
 	public int getId() {
 		return id;

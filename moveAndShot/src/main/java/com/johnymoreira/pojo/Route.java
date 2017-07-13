@@ -5,10 +5,16 @@ import java.util.List;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * created by johnymoreira
+ *
+ * POJO for Route representation
+ */
 public class Route {
 	private final List<LatLng> points;
 	private String polyline;
 
+	// construtor default. Apenas inicializa o conjunto de pontos da rota
 	public Route() {
 		points = new ArrayList<LatLng>();
 	}
