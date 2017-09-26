@@ -13,11 +13,13 @@ import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -97,6 +99,7 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     /**
@@ -148,32 +151,6 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
     @Override
     protected void onStart() {
         super.onStart();
-    }
-
-    /*
-        Ação de clique no botão Mapa. Abre o aplicativo de navegação do Google
-        com destino até o ponto de interesse referente
-     */
-    public void abrirNavegacao(View view) {
-        int position = this.listview.getPositionForView(view);
-
-        Intent mapIntent = new Intent("android.intent.action.VIEW",
-                Uri.parse("google.navigation:q=" + ((PontoDeInteresse) this.pois.get(position)).getPonto().latitude +
-                        "," + ((PontoDeInteresse) this.pois.get(position)).getPonto().longitude));
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
-    }
-
-    /*
-        Ação de clique no botão de Câmera. Abre a activity de Câmera para captura de fotografias
-     */
-    public void abrirCamera(View view) {
-        int position = this.listview.getPositionForView(view);
-
-        Intent it = new Intent(getApplicationContext(), CameraActivity.class);
-        it.putExtra("latitude", ((PontoDeInteresse) this.pois.get(position)).getPonto().latitude);
-        it.putExtra("longitude", ((PontoDeInteresse) this.pois.get(position)).getPonto().longitude);
-        startActivity(it);
     }
 
     // Evento para captura de longo clique. Leitura do conteúdo do item com a biblioteca TTS
@@ -352,6 +329,9 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
                 // Seta eventos de longclick, click e scrool da lista de POIs carregada na activity
                 MainActivity.this.listview.setOnItemLongClickListener(MainActivity.this);
                 MainActivity.this.listview.setOnScrollListener(MainActivity.this);
+
+                View view = adapter.getLayoutInflater();
+
                 //listview.setOnItemClickListener(MainActivity.this); <- retirado.. seria chamada para MapActivity
             } catch (JSONException e) {
                 e.printStackTrace();

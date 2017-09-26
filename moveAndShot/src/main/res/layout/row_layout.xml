@@ -73,8 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Mapa"
-                android:layout_weight="1.0"
-                android:onClick="abrirNavegacao" />
+                android:layout_weight="1.0" />
 
             <Button
                 android:id="@+id/buttonCamera"
@@ -82,8 +81,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Capturar"
-                android:layout_weight="1.0"
-                android:onClick="abrirCamera" />
+                android:layout_weight="1.0"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
