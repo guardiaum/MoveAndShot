@@ -2,6 +2,9 @@ package com.johnymoreira.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -13,9 +16,17 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -24,29 +35,35 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 import com.johnymoreira.pojo.PontoDeInteresse;
-import com.johnymoreira.utils.CameraController;
+import com.johnymoreira.utils.GeographicUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 
 public class CameraActivity extends Activity implements SensorEventListener, OnClickListener,
-        OnLongClickListener, OnInitListener, LocationListener {
+        OnLongClickListener, OnInitListener, LocationListener, SurfaceHolder.Callback {
 
+    private Camera camera;
+    private MediaScannerConnection conn;
+    private SurfaceHolder surfaceHolder;
     private Sensor accelerometer;
-    private CameraController camera;
-    private ImageView compass;
+    private SensorManager mSensorManager;
+    private Sensor magnetometer;
+    private Location location;
+    private LocationManager locationManager;
+    private TextToSpeech tts;
     private float currentDegreeArrow = 0.0f;
     private float currentDegreeCompass = 0.0f;
     private boolean isGPSEnabled;
     private boolean isNetworkEnabled;
-    private Location location;
-    private LocationManager locationManager;
     private float[] mGeomagnetic;
     private float[] mGravity;
-    private SensorManager mSensorManager;
-    private Sensor magnetometer;
     private PontoDeInteresse poi;
+    private ImageView compass;
     private ImageView seta;
-    private TextToSpeech tts;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,10 +74,11 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
 
         Bundle bd = getIntent().getExtras();
         try {
-            this.poi = new PontoDeInteresse(0, bd.getString("nome_ponto"), "",
+            this.poi = new PontoDeInteresse(bd.getInt("id"), bd.getString("nome_ponto"), "",
                     (Address) new Geocoder(getApplicationContext(), Locale.getDefault()).
                             getFromLocation(Double.valueOf(bd.getDouble("latitude")).doubleValue(),
                                     Double.valueOf(bd.getDouble("longitude")).doubleValue(), 1).get(0), "");
+            Log.i("CameraActivity>poiId", poi.getId()+"");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,8 +108,8 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
         super.onPause();
         this.mSensorManager.unregisterListener(this);
         if (this.camera != null) {
-            this.camera.pararVisualizacao();
-            this.camera = null;
+            this.pararVisualizacao();
+            //this.camera = null;
         }
     }
 
@@ -103,8 +121,7 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
             this.tts.shutdown();
         }
         if (this.camera != null) {
-            this.camera.liberarCamera();
-            this.camera = null;
+            this.liberarCamera();
         }
         super.onDestroy();
     }
@@ -112,12 +129,16 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
     private void Load() {
         Camera c = getCameraInstance();
         if (c != null) {
-            this.camera = new CameraController(this, R.id.svCamera, c, getLocation());
+            camera = c;
             FrameLayout frame = (FrameLayout) findViewById(R.id.containerCamera);
             frame.setOnClickListener(this);
             frame.setOnLongClickListener(this);
+            SurfaceView surfaceView = (SurfaceView) findViewById(R.id.svCamera);
+            surfaceHolder = surfaceView.getHolder();
+            surfaceHolder.addCallback(this);
             this.compass = (ImageView) findViewById(R.id.imageCompass);
             this.seta = (ImageView) findViewById(R.id.seta);
+
         }
     }
 
@@ -140,7 +161,7 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
     }
 
     public boolean onLongClick(View v) {
-        this.camera.tirarFoto();
+        this.tirarFoto();
         Toast.makeText(getApplicationContext(), "Foto Capturada.", Toast.LENGTH_SHORT).show();
         return true;
     }
@@ -234,5 +255,134 @@ public class CameraActivity extends Activity implements SensorEventListener, OnC
     }
 
     public void onProviderDisabled(String provider) {
+    }
+
+    public void surfaceCreated(SurfaceHolder holder) {
+        try {
+
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setRotation(90);
+            camera.setDisplayOrientation(90);
+            camera.setParameters(parameters);
+            camera.setPreviewDisplay(holder);
+            camera.startPreview();
+
+        } catch (IOException e) {
+            Log.i("MoveAndShot", "Erro setando o preview da Camera");
+            e.printStackTrace();
+        }
+    }
+
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+        if (surfaceHolder.getSurface() != null) {
+            try {
+                camera.stopPreview();
+            } catch (Exception e) {
+                Log.i("MoveAndShot", "Tentando fechar uma preview não existente");
+            }
+            try {
+                camera.setPreviewDisplay(holder);
+                camera.startPreview();
+            } catch (IOException e2) {
+                Log.i("MoveAndShot", "Erro setando o preview da Camera");
+                e2.printStackTrace();
+            }
+        }
+    }
+
+    public void surfaceDestroyed(SurfaceHolder holder) {
+    }
+
+    public void tirarFoto() {
+
+        Camera.PictureCallback rawCallback = new Camera.PictureCallback(){
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {}
+        };
+
+        Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback(){
+            @Override
+            public void onShutter() {}
+        };
+
+        Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
+
+            public void onPictureTaken(byte[] data, Camera camera) {
+                try {
+                    File folder = new File(Environment.
+                            getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/MoveAndShot");
+
+                    if (!folder.exists()) {
+                        folder.mkdir();
+                    }
+
+                    final File file = new File(String.format(
+                            folder.getAbsolutePath() + "/%d.jpg",
+                            new Object[]{Long.valueOf(System.currentTimeMillis())}));
+
+                    FileOutputStream outStream = new FileOutputStream(file.getAbsolutePath());
+
+                    try {
+                        outStream.write(data);
+                        outStream.flush();
+                        outStream.close();
+                        conn = new MediaScannerConnection(getApplicationContext(),
+                                new MediaScannerConnection.MediaScannerConnectionClient() {
+
+                                    public void onScanCompleted(String path, Uri uri) {
+                                        if (path.equals(file.getAbsolutePath()))
+                                            conn.disconnect();
+                                    }
+
+                                    public void onMediaScannerConnected() {
+                                        conn.scanFile(file.getAbsolutePath(), null);
+                                    }
+                                });
+
+                        if (conn != null) {
+                            conn.connect();
+                        }
+
+                        ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+                        exif.setAttribute("GPSLatitude", GeographicUtils.convert(location.getLatitude()));
+                        exif.setAttribute("GPSLongitude", GeographicUtils.convert(location.getLongitude()));
+                        exif.setAttribute("GPSLatitudeRef", GeographicUtils.latitudeRef(location.getLatitude()));
+                        exif.setAttribute("GPSLongitudeRef", GeographicUtils.longitudeRef(location.getLongitude()));
+                        exif.saveAttributes();
+
+                        Intent it = new Intent(getApplicationContext(), PhotoViewActivity.class);
+                        Log.i("CameraActivity>>poiId", poi.getId()+"");
+                        it.putExtra("poi_id", poi.getId());
+                        it.putExtra("image_path", file.getAbsolutePath());
+                        startActivity(it);
+
+                    } catch (FileNotFoundException e) {
+                        camera.stopPreview();
+                        camera.startPreview();
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        camera.stopPreview();
+                        camera.startPreview();
+                        e.printStackTrace();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    camera.stopPreview();
+                    camera.startPreview();
+                }
+            }
+        };
+
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+    }
+
+    public void pararVisualizacao() {
+        camera.stopPreview();
+    }
+
+    public void liberarCamera() {
+        camera.release();
+        camera = null;
     }
 }

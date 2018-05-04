@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.net.Uri;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,8 +77,11 @@ public class SimplesArrayAdapter extends ArrayAdapter<PontoDeInteresse> {
                 //int position = listview.getPositionForView(v);
 
                 Intent it = new Intent(getContext(), CameraActivity.class);
-                it.putExtra("latitude", ((PontoDeInteresse) pois.get(position)).getPonto().latitude);
-                it.putExtra("longitude", ((PontoDeInteresse) pois.get(position)).getPonto().longitude);
+                it.putExtra("id", pois.get(position).getId());
+                Log.i("ID",pois.get(position).getId()+"");
+                it.putExtra("nome_ponto", pois.get(position).getNomePOI());
+                it.putExtra("latitude", pois.get(position).getPonto().latitude);
+                it.putExtra("longitude", pois.get(position).getPonto().longitude);
                 it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 v.getContext().startActivity(it);
             }

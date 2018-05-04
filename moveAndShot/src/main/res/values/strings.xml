@@ -6,5 +6,6 @@
     <string name="botao_captura">Capturar</string>
     <string name="compass_descrition">Bússola</string>
     <string name="seta">Seta de Orientação</string>
+    <string name="title_activity_photo_view">PhotoViewActivity</string>
 
 </resources>

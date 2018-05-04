@@ -199,55 +199,30 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
          * Abertura de conexão com o WS e execução da solicitação
          */
         protected Void doInBackground(String... uri) {
-            MalformedURLException e;
-            IOException e2;
-            Throwable th;
-            BufferedReader reader = null;
             try {
-                BufferedReader reader2 = new BufferedReader(new InputStreamReader(new URL(uri[0]).openConnection().getInputStream()));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(uri[0]).openConnection().getInputStream()));
                 try {
                     StringBuilder sb = new StringBuilder();
                     while (true) {
-                        String line = reader2.readLine();
+                        String line = reader.readLine();
                         if (line == null) {
                             break;
                         }
                         sb.append(new StringBuilder(String.valueOf(line)).toString());
                     }
                     this.content = sb.toString();
-                    try {
-                        reader2.close();
-                        reader = reader2;
-                    } catch (Exception ex) {
-                        this.error = ex.getMessage();
-                        reader = reader2;
-                    }
-                } catch (MalformedURLException e3) {
-                    e = e3;
-                    reader = reader2;
-                } catch (IOException e4) {
-                    e2 = e4;
-                    reader = reader2;
-                } catch (Throwable th2) {
-                    th = th2;
-                    reader = reader2;
-                }
-            } catch (MalformedURLException e5) {
-                e = e5;
-                try {
                     reader.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Throwable e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e6) {
-                e2 = e6;
-                this.error = e2.getMessage();
-                try {
-                    reader.close();
-                } catch (Exception ex222) {
-                    this.error = ex222.getMessage();
-                }
-                return null;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
         }
@@ -335,8 +310,8 @@ public class MainActivity extends Activity implements OnItemLongClickListener,
                 //listview.setOnItemClickListener(MainActivity.this); <- retirado.. seria chamada para MapActivity
             } catch (JSONException e) {
                 e.printStackTrace();
-            } catch (Exception e2) {
-                e2.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

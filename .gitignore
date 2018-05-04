@@ -1,12 +1,13 @@
 # Built application files
 *.apk
 *.ap_
-
+*.bat
 # Files for the ART/Dalvik VM
 *.dex
 
 # Java class files
 *.class
+*.jar
 
 # Generated files
 bin/
@@ -15,7 +16,9 @@ out/
 
 # Gradle files
 .gradle/
+gradle/
 build/
+
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -54,4 +57,7 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+
+moveAndShot/libs/*
+moveAndShot/lint.xml
 

@@ -2,6 +2,9 @@ package com.johnymoreira.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
@@ -11,16 +14,20 @@ import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+
+import com.johnymoreira.activities.PhotoViewActivity;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class CameraController implements Callback {
+public class CameraControllera implements Callback {
     private Activity activity;
     private Camera camera;
     private MediaScannerConnection conn;
@@ -47,7 +54,7 @@ public class CameraController implements Callback {
         }
     }
 
-    public CameraController(Activity atividade, int surfaceView, Camera c, final Location location) {
+    public CameraControllera(Activity atividade, int surfaceView, Camera c, final Location location) {
         this.activity = atividade;
         this.ctx = atividade.getApplicationContext();
         this.surfaceView = (SurfaceView) atividade.findViewById(surfaceView);
@@ -57,11 +64,8 @@ public class CameraController implements Callback {
         this.rawCallback = new RawCallback();
         this.shutterCallback = new ShutterCallback();
         this.jpegCallback = new PictureCallback() {
-            public void onPictureTaken(byte[] data, Camera camera) {
-                FileOutputStream fileOutputStream;
-                FileNotFoundException e;
-                IOException e2;
 
+            public void onPictureTaken(byte[] data, Camera camera) {
                 try {
                     File folder = new File(Environment.
                             getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/MoveAndShot");
@@ -73,30 +77,31 @@ public class CameraController implements Callback {
                     final File file = new File(String.format(
                             folder.getAbsolutePath() + "/%d.jpg",
                             new Object[]{Long.valueOf(System.currentTimeMillis())}));
+
                     FileOutputStream outStream = new FileOutputStream(file.getAbsolutePath());
 
                     try {
                         outStream.write(data);
                         outStream.flush();
                         outStream.close();
-                        CameraController.this.conn =
-                                new MediaScannerConnection(CameraController.this.ctx,
+                        CameraControllera.this.conn =
+                                new MediaScannerConnection(CameraControllera.this.ctx,
                                         new MediaScannerConnectionClient() {
 
                             public void onScanCompleted(String path, Uri uri) {
 
                                 if (path.equals(file.getAbsolutePath())) {
-                                    CameraController.this.conn.disconnect();
+                                    CameraControllera.this.conn.disconnect();
                                 }
                             }
 
                             public void onMediaScannerConnected() {
-                                CameraController.this.conn.scanFile(file.getAbsolutePath(), null);
+                                CameraControllera.this.conn.scanFile(file.getAbsolutePath(), null);
                             }
                         });
 
-                        if (CameraController.this.conn != null) {
-                            CameraController.this.conn.connect();
+                        if (CameraControllera.this.conn != null) {
+                            CameraControllera.this.conn.connect();
                         }
 
                         ExifInterface exif = new ExifInterface(file.getAbsolutePath());
@@ -105,29 +110,25 @@ public class CameraController implements Callback {
                         exif.setAttribute("GPSLatitudeRef", GeographicUtils.latitudeRef(location.getLatitude()));
                         exif.setAttribute("GPSLongitudeRef", GeographicUtils.longitudeRef(location.getLongitude()));
                         exif.saveAttributes();
-                        fileOutputStream = outStream;
 
-                    } catch (FileNotFoundException e3) {
-                        e = e3;
-                        fileOutputStream = outStream;
+                        Intent it = new Intent(activity.getApplicationContext(), PhotoViewActivity.class);
+                        Bitmap b =  BitmapFactory.decodeFile(file.getAbsolutePath());
+                        b.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
+                        it.putExtra(MediaStore.EXTRA_OUTPUT, b);
+                        it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.getApplicationContext().startActivity(it);
+
+                    } catch (FileNotFoundException e) {
+                        camera.stopPreview();
+                        camera.startPreview();
                         e.printStackTrace();
+                    } catch (IOException e) {
                         camera.stopPreview();
                         camera.startPreview();
-                    } catch (IOException e4) {
-                        e2 = e4;
-                        fileOutputStream = outStream;
-                        e2.printStackTrace();
-                        camera.stopPreview();
-                        camera.startPreview();
+                        e.printStackTrace();
                     }
-                } catch (FileNotFoundException e5) {
-                    e = e5;
+                } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    camera.stopPreview();
-                    camera.startPreview();
-                } catch (IOException e6) {
-                    e2 = e6;
-                    e2.printStackTrace();
                     camera.stopPreview();
                     camera.startPreview();
                 }
